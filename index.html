@@ -2535,6 +2535,11 @@ transformation=o‘zgarish, transformatsiya=преобразование=B2 Да
 
     window.onload = updateGroups;
 
+    // Овозларни олдиндан юклаб олиш (Баъзи браузерлар дарҳол овозларни бермайди)
+    window.speechSynthesis.onvoiceschanged = function() {
+        window.speechSynthesis.getVoices();
+    };
+
     function escapeHtml(str) {
         if (!str) return '';
         return String(str)
@@ -2723,15 +2728,41 @@ transformation=o‘zgarish, transformatsiya=преобразование=B2 Да
         return 23000;
     }
 
+    function getBestVoice(lang) {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length === 0) return null;
+
+        let availableVoices = voices.filter(v => v.lang.startsWith(lang));
+        
+        if (availableVoices.length > 0) {
+            let bestVoice = availableVoices.find(v => 
+                v.name.toLowerCase().includes('google') || 
+                v.name.toLowerCase().includes('network') || 
+                v.name.toLowerCase().includes('online') ||
+                v.name.toLowerCase().includes('premium')
+            );
+            return bestVoice || availableVoices[0]; 
+        }
+        return null;
+    }
+
     function speakText(text, lang = 'en-US') {
         if (!('speechSynthesis' in window) || !text) return;
         try {
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = lang;
-            utterance.rate = 0.85;
+            utterance.rate = 0.85; 
+
+            const voice = getBestVoice(lang.substring(0, 2));
+            if (voice) {
+                utterance.voice = voice;
+            }
+
             window.speechSynthesis.speak(utterance);
-        } catch(e) {}
+        } catch(e) {
+            console.error("Овоз ўқишда хатолик:", e);
+        }
     }
 
     function speakCurrentWordByLang(lang) {
@@ -2751,12 +2782,24 @@ transformation=o‘zgarish, transformatsiya=преобразование=B2 Да
         const enSpeech = new SpeechSynthesisUtterance(wordObj.word);
         enSpeech.lang = 'en-US';
         enSpeech.rate = 0.85;
+        let enVoice = getBestVoice('en');
+        if (enVoice) enSpeech.voice = enVoice;
 
         const uzSpeech = wordObj.uz ? new SpeechSynthesisUtterance(wordObj.uz) : null;
-        if (uzSpeech) { uzSpeech.lang = 'uz-UZ'; uzSpeech.rate = 0.85; }
+        if (uzSpeech) { 
+            uzSpeech.lang = 'uz-UZ'; 
+            uzSpeech.rate = 0.85; 
+            let uzVoice = getBestVoice('uz') || getBestVoice('tr'); 
+            if (uzVoice) uzSpeech.voice = uzVoice;
+        }
 
         const ruSpeech = wordObj.ru ? new SpeechSynthesisUtterance(wordObj.ru) : null;
-        if (ruSpeech) { ruSpeech.lang = 'ru-RU'; ruSpeech.rate = 0.85; }
+        if (ruSpeech) { 
+            ruSpeech.lang = 'ru-RU'; 
+            ruSpeech.rate = 0.85; 
+            let ruVoice = getBestVoice('ru');
+            if (ruVoice) ruSpeech.voice = ruVoice;
+        }
 
         enSpeech.onend = () => {
             if (uzSpeech) {
