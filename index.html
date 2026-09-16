@@ -2785,7 +2785,13 @@ transformation=o‘zgarish, transformatsiya=преобразование=B2 Да
         let enVoice = getBestVoice('en');
         if (enVoice) enSpeech.voice = enVoice;
 
-        
+        const uzSpeech = wordObj.uz ? new SpeechSynthesisUtterance(wordObj.uz) : null;
+        if (uzSpeech) { 
+            uzSpeech.lang = 'uz-UZ'; 
+            uzSpeech.rate = 0.85; 
+            let uzVoice = getBestVoice('uz') || getBestVoice('tr'); 
+            if (uzVoice) uzSpeech.voice = uzVoice;
+        }
 
         const ruSpeech = wordObj.ru ? new SpeechSynthesisUtterance(wordObj.ru) : null;
         if (ruSpeech) { 
