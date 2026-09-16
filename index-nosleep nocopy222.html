@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мукаммал Луғат Ёдлаш Дастури</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 650px;
+            text-align: center;
+            position: relative;
+        }
+        #app-container, #stats-container {
+            display: none;
+            padding-top: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 140px;
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            box-sizing: border-box;
+            font-size: 15px;
+            resize: vertical;
+        }
+        select, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            font-size: 16px;
+            margin-top: 10px;
+            background-color: white;
+            box-sizing: border-box;
+        }
+        button {
+            background: #0d6efd;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 12px;
+            transition: background 0.2s;
+        }
+        button:hover { background: #0b5ed7; }
+        button:disabled { background: #adb5bd; cursor: not-allowed; opacity: 0.7; }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #5c636a; }
+        .btn-info { background: #0dcaf0; color: #000; font-weight: bold; }
+        .btn-info:hover { background: #31d2f2; }
+        .btn-mic { background: #198754; font-size: 18px; padding: 15px; }
+        .btn-mic:hover { background: #157347; }
+        .btn-mic.listening { background: #dc3545; animation: pulse 1.5s infinite; }
+        
+        .btn-audio-group { display: flex; gap: 6px; margin-top: 12px; justify-content: center; flex-wrap: wrap; }
+        .btn-audio { background: #198754; width: auto; padding: 6px 12px; font-size: 13px; margin-top: 0; }
+        .btn-audio:hover { background: #157347; }
+        .btn-audio-seq { background: #0d6efd; }
+        .btn-audio-seq:hover { background: #0b5ed7; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .option-btn {
+            background: #f8f9fa;
+            color: #212529;
+            border: 2px solid #dee2e6;
+            margin-top: 0;
+            padding: 15px 10px;
+        }
+        .option-btn:hover:not(:disabled) { background: #e9ecef; }
+        
+        .flashcard {
+            background: #fff;
+            border: 2px solid #0d6efd;
+            border-radius: 12px;
+            padding: 30px 20px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .flashcard:hover { transform: translateY(-2px); }
+
+        .matching-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .matching-column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .match-btn {
+            background: #f8f9fa;
+            color: #212529;
+            border: 2px solid #dee2e6;
+            padding: 12px 10px;
+            margin: 0;
+            font-size: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            word-break: break-word;
+        }
+        .match-btn:hover:not(:disabled) { background: #e9ecef; border-color: #adb5bd; }
+        .match-btn.selected { background: #cfe2ff; border-color: #0d6efd; color: #084298; font-weight: bold; }
+        .match-btn.correct { background: #d1e7dd !important; border-color: #198754 !important; color: #0f5132 !important; cursor: default; }
+        .match-btn.wrong { background: #f8d7da !important; border-color: #dc3545 !important; color: #842029 !important; }
+
+        .jumble-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 15px;
+            min-height: 50px;
+        }
+        .letter-btn {
+            background: #ffc107;
+            color: #000;
+            padding: 10px 15px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            width: auto;
+            margin: 0;
+            text-transform: lowercase;
+            transition: transform 0.1s ease-in-out;
+        }
+        .letter-btn:active { transform: scale(0.9); }
+        .answer-box {
+            min-height: 60px;
+            border: 2px dashed #ced4da;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .file-upload-wrapper {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .word-card { font-size: 30px; font-weight: bold; color: #212529; margin-bottom: 10px; word-wrap: break-word; }
+        .translation-card { font-size: 22px; color: #0d6efd; word-wrap: break-word; }
+        .translation-sub { font-size: 18px; color: #6c757d; margin-top: 4px; word-wrap: break-word; }
+        .question-title { font-size: 17px; color: #6c757d; margin-bottom: 10px; }
+        
+        hr { border: 0; height: 2px; background: #dee2e6; margin: 20px 0; }
+        
+        /* Янги юқори панель стили */
+        .top-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .group-badge, .score-badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .group-badge { background: #17a2b8; color: white; text-align: right; }
+        .score-badge { background: #6c757d; color: white; text-align: left; }
+
+        .timer-container { width: 100%; height: 6px; background: #e9ecef; border-radius: 3px; margin-top: 25px; overflow: hidden; display: none; }
+        #timer-bar { height: 100%; background: #dc3545; width: 100%; }
+        #feedback { font-size: 19px; font-weight: bold; margin-top: 15px; min-height: 30px; }
+        
+        .controls { display: flex; gap: 10px; margin-top: 20px; }
+
+        /* Stats Styles */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .stat-card { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 10px; padding: 15px; text-align: center; }
+        .stat-card h3 { margin: 0; font-size: 24px; color: #0d6efd; }
+        .stat-card p { margin: 5px 0 0 0; color: #6c757d; font-size: 13px; }
+        .words-list-box { text-align: left; max-height: 220px; overflow-y: auto; border: 1px solid #ced4da; padding: 10px; border-radius: 8px; margin-top: 15px; background: #fafafa; }
+        .word-stat-item { display: flex; justify-content: space-between; border-bottom: 1px dashed #dee2e6; padding: 6px 0; font-size: 14px; }
+        .tab-btn-group { display: flex; gap: 5px; margin-top: 15px; }
+        .tab-btn { flex: 1; padding: 8px; font-size: 13px; background: #e9ecef; color: #495057; border: 1px solid #ced4da; margin-top: 0; }
+        .tab-btn.active { background: #0d6efd; color: white; border-color: #0d6efd; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nosleep/0.12.0/NoSleep.min.js"></script>
+</head>
+<body>
+
+<div id="setup-container" class="container">
+    <h2>Мукаммал Луғат Дастури</h2>
+    
+    <div class="file-upload-wrapper">
+        <label for="file-input"><b>Файлдан юклаш (.txt):</b></label><br>
+        <input type="file" id="file-input" accept=".txt" style="margin-top: 8px;">
+    </div>
+
+    <div style="margin-top:12px; text-align:left; font-size:13px; color:#495057;">
+        <b>Формат:</b> <code>сўз=ўзбекча=русча=гуруҳ=пастки_гуруҳ</code>
+    </div>
+
+    <textarea id="word-list">apple=олма=яблоко=Мевалар=Турлар
+book=китоб=книга=Ўқув қуроллари=Бадиий
+cat=мушук=кошка=Ҳайвонлар=Уй ҳайвонлари
+house=уй=дом=Иморатлар=Турар жой
+water=сув=вода=Ичимликлар=Табиий
+sun=қуёш=солнце=Табиат=Фазо
+bread=нон=хлеб=Озиқ-овқат=Галла
+car=машина=машина=Транспорт=Ер усти</textarea>
+
+    <select id="group-select">
+        <option value="all">Барча гуруҳлар</option>
+    </select>
+
+    <select id="subgroup-select">
+        <option value="all">Барча кичик гуруҳлар</option>
+    </select>
+
+    <select id="mode-select">
+        <option value="marathon" style="font-weight:bold; color:blue;">⭐ 1. БОСҚИЧМА-БОСҚИЧ МАРАФОН (10 талик сўзлар)</option>
+        <option value="learn">2. Шунчаки ёдлаш (Алоҳида)</option>
+        <option value="flashcard">3. Карточкани ағдариш (Flashcard)</option>
+        <option value="matching">4. Сўз ва таржималарни жуфтлаш (Matching)</option>
+        <option value="test-wt">5. Тест: Сўз -> Таржима</option>
+        <option value="test-tw">6. Тест: Таржима -> Сўз</option>
+        <option value="truefalse">7. Тўғри ёки Нотўғри (True/False)</option>
+        <option value="speedrun">8. Қисқа вақтда кўпроқ сўз (Speed Run)</option>
+        <option value="jumble">9. Ҳарф/бўғинлардан сўз ясаш (Jumble)</option>
+        <option value="type">10. Клавиатурада ёзиш (Writing)</option>
+        <option value="speak">11. Овоз орқали гапириш (Speaking 🎤)</option>
+        <option value="mix" style="font-weight:bold; color:purple;">12. 🔀 АРАЛАШ ИМТИҲОН (Барча усуллар)</option>
+    </select>
+
+    <button onclick="startApp()">Бошлаш</button>
+    <button onclick="openStats()" class="btn-info">📊 Таҳлилий Статистика</button>
+    <button onclick="resetScores()" class="btn-secondary" style="font-size: 13px;">Натижаларни қайта ноллаш</button>
+</div>
+
+<!-- STATS CONTAINER -->
+<div id="stats-container" class="container">
+    <h2>📊 Таҳлилий Натижалар</h2>
+    
+    <div class="tab-btn-group">
+        <button class="tab-btn active" onclick="switchStatsPeriod('today', this)">Бугун</button>
+        <button class="tab-btn" onclick="switchStatsPeriod('week', this)">7 кун</button>
+        <button class="tab-btn" onclick="switchStatsPeriod('month', this)">30 кун</button>
+        <button class="tab-btn" onclick="switchStatsPeriod('year', this)">1 йил</button>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3 id="stat-time">0 дақ</h3>
+            <p>Шуғулланилган вақт</p>
+        </div>
+        <div class="stat-card">
+            <h3 id="stat-words-count">0 та</h3>
+            <p>Ёдланган/Такрорланган сўзлар</p>
+        </div>
+    </div>
+
+    <div class="words-list-box" id="stats-words-list"></div>
+
+    <button onclick="closeStats()" class="btn-secondary">Бош менюга қайтиш</button>
+</div>
+
+<!-- MAIN APP CONTAINER -->
+<div id="app-container" class="container">
+    <!-- Тўсиқ бўлмаслиги учун алоҳида панель -->
+    <div class="top-header-bar">
+        <div id="current-score-badge" class="score-badge">Балл: 0.0</div>
+        <div id="current-group-badge" class="group-badge">Гуруҳ</div>
+    </div>
+    
+    <div id="dynamic-area"></div>
+    
+    <div id="feedback"></div>
+
+    <div class="timer-container" id="timer-wrapper">
+        <div id="timer-bar"></div>
+    </div>
+    
+    <div class="controls">
+        <button onclick="stopApp()" class="btn-secondary">Бош менюга қайтиш</button>
+    </div>
+</div>
+
+<script>
+    let allParsedWords = [];
+    let words = [];
+    let currentIndex = 0;
+    let timer = null;
+    let currentMode = 'learn';
+    
+    let marathonBatchIndex = 0;
+    let marathonSteps = ['flashcard', 'matching', 'test-wt', 'test-tw', 'truefalse', 'speedrun', 'jumble', 'type'];
+    let currentMarathonStepIdx = 0;
+    let batchWords = [];
+
+    let isFlashcardFlipped = false;
+
+    let speedRunScore = 0;
+    let speedRunTimer = null;
+    let speedRunTimeLeft = 60;
+
+    let currentJumbleParts = [];
+    let currentJumbleTarget = "";
+    let currentJumbleTranslation = "";
+    
+    let matchingBatchIndex = 0;
+    let selectedWordBtn = null;
+    let selectedTranslationBtn = null;
+    let matchingPairsLeft = 0;
+
+    let activeRecognition = null;
+    let noSleep = new NoSleep();
+
+    let wordStartTime = 0;
+    let currentSelectedPeriod = 'today';
+
+    document.getElementById('word-list').addEventListener('input', updateGroups);
+    document.getElementById('group-select').addEventListener('change', updateSubgroups);
+    document.getElementById('file-input').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            document.getElementById('word-list').value = event.target.result;
+            updateGroups();
+        };
+        reader.readAsText(file);
+    });
+
+    window.onload = updateGroups;
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function getWordData(word) {
+        let raw = localStorage.getItem('vocab_data_' + word);
+        if (raw) {
+            try { return JSON.parse(raw); } catch(e) {}
+        }
+        return { totalScore: 0, modeScores: {} };
+    }
+
+    function saveWordData(word, data) {
+        localStorage.setItem('vocab_data_' + word, JSON.stringify(data));
+    }
+
+    function logStudySession(word, durationSeconds, isCorrect) {
+        let logs = JSON.parse(localStorage.getItem('vocab_logs') || '[]');
+        logs.push({
+            timestamp: Date.now(),
+            word: word,
+            duration: durationSeconds,
+            isCorrect: isCorrect
+        });
+        localStorage.setItem('vocab_logs', JSON.stringify(logs));
+    }
+
+    function getWordModeScore(word, mode) {
+        let data = getWordData(word);
+        return data.modeScores[mode] || 0;
+    }
+
+    function updateWordScore(word, mode, isCorrect) {
+        let data = getWordData(word);
+        let currentModeScore = data.modeScores[mode] || 0;
+
+        if (isCorrect) {
+            currentModeScore = Math.min(1.0, currentModeScore + 0.1);
+        } else {
+            currentModeScore = Math.max(0.0, currentModeScore - 0.1);
+        }
+
+        data.modeScores[mode] = parseFloat(currentModeScore.toFixed(2));
+        
+        let modeKeys = Object.keys(data.modeScores);
+        let sum = modeKeys.reduce((acc, k) => acc + data.modeScores[k], 0);
+        data.totalScore = parseFloat(sum.toFixed(2));
+
+        saveWordData(word, data);
+
+        let currentWordObj = words.find(w => w.word === word);
+        if(currentWordObj) currentWordObj.score = data.totalScore;
+    }
+
+    function resetScores() {
+        if(confirm("Барча ёдланган сўзлар ва статистика натижалари ноллансинми?")) {
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('vocab_data_') || key === 'vocab_logs') { 
+                    localStorage.removeItem(key); 
+                }
+            });
+            updateGroups();
+            alert("Натижалар муваффақиятли нолланди!");
+        }
+    }
+
+    function updateGroups() {
+        const text = document.getElementById('word-list').value;
+        const lines = text.split('\n').map(line => line.trim()).filter(line => line.includes('='));
+        let groups = new Set();
+        allParsedWords = [];
+
+        lines.forEach(line => {
+            const parts = line.split('=').map(p => p.trim());
+            let word = '', uz = '', ru = '', group = 'Умумий', subgroup = 'Асосий';
+
+            if (parts.length >= 5) {
+                word = parts[0]; uz = parts[1]; ru = parts[2]; group = parts[3] || 'Умумий'; subgroup = parts[4] || 'Асосий';
+            } else if (parts.length === 4) {
+                word = parts[0]; uz = parts[1]; ru = parts[2]; group = parts[3] || 'Умумий';
+            } else if (parts.length === 3) {
+                word = parts[0]; uz = parts[1]; group = parts[2] || 'Умумий';
+            } else if (parts.length === 2) {
+                word = parts[0]; uz = parts[1];
+            }
+
+            if (word && (uz || ru)) {
+                let displayTrans = uz + (ru ? ` / ${ru}` : '');
+                let wData = getWordData(word);
+                allParsedWords.push({ 
+                    word, uz, ru, translation: displayTrans, group, subgroup, score: wData.totalScore 
+                });
+                groups.add(group);
+            }
+        });
+
+        const groupSelect = document.getElementById('group-select');
+        groupSelect.innerHTML = '<option value="all">Барча гуруҳларни ўрганиш</option>';
+        groups.forEach(g => {
+            const opt = document.createElement('option');
+            opt.value = g; opt.innerText = g;
+            groupSelect.appendChild(opt);
+        });
+
+        updateSubgroups();
+    }
+
+    function updateSubgroups() {
+        const selectedGroup = document.getElementById('group-select').value;
+        const subgroupSelect = document.getElementById('subgroup-select');
+        subgroupSelect.innerHTML = '<option value="all">Барча кичик гуруҳлар</option>';
+
+        let filtered = (selectedGroup === 'all') ? allParsedWords : allParsedWords.filter(w => w.group === selectedGroup);
+        let subgroups = new Set(filtered.map(w => w.subgroup).filter(Boolean));
+
+        subgroups.forEach(sg => {
+            const opt = document.createElement('option');
+            opt.value = sg; opt.innerText = sg;
+            subgroupSelect.appendChild(opt);
+        });
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function sortWordsByCurrentModeScore(array, mode) {
+        array.sort((a, b) => {
+            let scoreA = getWordModeScore(a.word, mode);
+            let scoreB = getWordModeScore(b.word, mode);
+            return (scoreA - scoreB) || (Math.random() - 0.5);
+        });
+    }
+
+    function startApp() {
+        const selectedGroup = document.getElementById('group-select').value;
+        const selectedSubgroup = document.getElementById('subgroup-select').value;
+        currentMode = document.getElementById('mode-select').value;
+        
+        allParsedWords.forEach(w => w.score = getWordData(w.word).totalScore);
+
+        words = allParsedWords.filter(item => {
+            let matchGroup = (selectedGroup === 'all' || item.group === selectedGroup);
+            let matchSubgroup = (selectedSubgroup === 'all' || item.subgroup === selectedSubgroup);
+            return matchGroup && matchSubgroup;
+        });
+        
+        if (words.length === 0) {
+            alert("Сўзлар топилмади.");
+            return;
+        }
+
+        document.getElementById('setup-container').style.display = 'none';
+        document.getElementById('app-container').style.display = 'block';
+        
+        currentIndex = 0;
+        marathonBatchIndex = 0;
+        currentMarathonStepIdx = 0;
+        matchingBatchIndex = 0;
+
+        if (currentMode === 'marathon') {
+            batchWords = words.slice(marathonBatchIndex, marathonBatchIndex + 10);
+        } else {
+            sortWordsByCurrentModeScore(words, currentMode);
+        }
+
+        try { noSleep.enable(); } catch(e) {}
+        showNextWord();
+    }
+
+    function calculateDelay(word, translation) {
+        const maxLength = Math.max(word.length, (translation || '').length);
+        if (maxLength <= 10) return 3000;
+        if (maxLength <= 20) return 6000;
+        if (maxLength <= 30) return 10000;
+        if (maxLength <= 40) return 14000;
+        return 23000;
+    }
+
+    function speakText(text, lang = 'en-US') {
+        if (!('speechSynthesis' in window) || !text) return;
+        try {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            utterance.rate = 0.85;
+            window.speechSynthesis.speak(utterance);
+        } catch(e) {}
+    }
+
+    function speakCurrentWordByLang(lang) {
+        let activePool = (currentMode === 'marathon') ? batchWords : words;
+        let item = activePool[currentIndex];
+        if (!item) return;
+
+        if (lang === 'en') speakText(item.word, 'en-US');
+        if (lang === 'uz') speakText(item.uz || item.translation, 'uz-UZ');
+        if (lang === 'ru') speakText(item.ru, 'ru-RU');
+    }
+
+    function speakSequence(wordObj) {
+        if (!('speechSynthesis' in window) || !wordObj) return;
+        window.speechSynthesis.cancel();
+
+        const enSpeech = new SpeechSynthesisUtterance(wordObj.word);
+        enSpeech.lang = 'en-US';
+        enSpeech.rate = 0.85;
+
+        const uzSpeech = wordObj.uz ? new SpeechSynthesisUtterance(wordObj.uz) : null;
+        if (uzSpeech) { uzSpeech.lang = 'uz-UZ'; uzSpeech.rate = 0.85; }
+
+        const ruSpeech = wordObj.ru ? new SpeechSynthesisUtterance(wordObj.ru) : null;
+        if (ruSpeech) { ruSpeech.lang = 'ru-RU'; ruSpeech.rate = 0.85; }
+
+        enSpeech.onend = () => {
+            if (uzSpeech) {
+                setTimeout(() => window.speechSynthesis.speak(uzSpeech), 300);
+            } else if (ruSpeech) {
+                setTimeout(() => window.speechSynthesis.speak(ruSpeech), 300);
+            }
+        };
+
+        if (uzSpeech && ruSpeech) {
+            uzSpeech.onend = () => {
+                setTimeout(() => window.speechSynthesis.speak(ruSpeech), 300);
+            };
+        }
+
+        window.speechSynthesis.speak(enSpeech);
+    }
+
+    function cleanStringForCheck(str) {
+        return str ? str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?'"]/g,"").replace(/\s{2,}/g," ").trim() : "";
+    }
+
+    function showNextWord() {
+        if (timer) clearTimeout(timer);
+        if (speedRunTimer) { clearInterval(speedRunTimer); speedRunTimer = null; }
+        if (activeRecognition) {
+            try { activeRecognition.stop(); } catch(e){}
+            activeRecognition = null;
+        }
+        
+        document.getElementById('timer-wrapper').style.display = 'none';
+        document.getElementById('feedback').innerHTML = '';
+        
+        let runMode = currentMode;
+
+        if (currentMode === 'marathon') {
+            let activePool = batchWords;
+
+            if (currentIndex >= activePool.length) {
+                currentIndex = 0;
+                currentMarathonStepIdx++; 
+
+                if (currentMarathonStepIdx >= marathonSteps.length) {
+                    currentMarathonStepIdx = 0;
+                    marathonBatchIndex += 10;
+                    batchWords = words.slice(marathonBatchIndex, marathonBatchIndex + 10);
+                    
+                    if (batchWords.length === 0) {
+                        document.getElementById('dynamic-area').innerHTML = `<h3>🏆 Табриклаймиз! Барча сўзлар марафонни муваффақиятли якунлади!</h3>`;
+                        document.getElementById('current-group-badge').innerText = "Марафон тугади";
+                        return;
+                    }
+                    activePool = batchWords;
+                }
+            }
+            
+            runMode = marathonSteps[currentMarathonStepIdx];
+            document.getElementById('current-group-badge').innerText = `Марафон: ${currentMarathonStepIdx + 1}/8-босқич`;
+        } 
+        else if (currentMode === 'mix') {
+            const mixModes = ['flashcard', 'matching', 'test-wt', 'test-tw', 'truefalse', 'jumble', 'type', 'speak'];
+            runMode = mixModes[Math.floor(Math.random() * mixModes.length)];
+        }
+
+        if (runMode === 'matching') {
+            wordStartTime = Date.now();
+            renderMatchingGame();
+            return;
+        }
+        if (runMode === 'speedrun') {
+            wordStartTime = Date.now();
+            renderSpeedRun();
+            return;
+        }
+
+        let activePool = (currentMode === 'marathon') ? batchWords : words;
+
+        if (currentMode !== 'marathon' && currentIndex >= activePool.length) {
+            currentIndex = 0;
+            sortWordsByCurrentModeScore(activePool, runMode);
+        }
+
+        const item = activePool[currentIndex];
+        wordStartTime = Date.now();
+
+        if (currentMode !== 'marathon') {
+            document.getElementById('current-group-badge').innerText = item.group + (item.subgroup ? ` > ${item.subgroup}` : '');
+        }
+        
+        let mScore = getWordModeScore(item.word, runMode);
+        document.getElementById('current-score-badge').innerText = `Жами: ${item.score.toFixed(1)} | Синов: ${mScore.toFixed(1)}`; 
+
+        if (runMode === 'learn') {
+            document.getElementById('dynamic-area').innerHTML = `
+                <div class="word-card">${escapeHtml(item.word)}</div>
+                <hr>
+                <div class="translation-card">${escapeHtml(item.uz || item.translation)}</div>
+                ${item.ru ? `<div class="translation-sub">${escapeHtml(item.ru)}</div>` : ''}
+                <div class="btn-audio-group">
+                    <button class="btn-audio" onclick="speakCurrentWordByLang('en')">🔊 ENG</button>
+                    <button class="btn-audio" onclick="speakCurrentWordByLang('uz')">🔊 UZB</button>
+                    ${item.ru ? `<button class="btn-audio" onclick="speakCurrentWordByLang('ru')">🔊 RUS</button>` : ''}
+                    <button class="btn-audio btn-audio-seq" onclick="speakSequence(words[currentIndex])">🔊 Кетма-кет ўқиш</button>
+                </div>
+            `;
+            speakSequence(item);
+            let delay = calculateDelay(item.word, item.translation);
+            showTimer(delay);
+            timer = setTimeout(processNext, delay);
+        }
+        else if (runMode === 'flashcard') {
+            renderFlashcard(item);
+        }
+        else if (runMode === 'test-wt') {
+            renderMultipleChoice(item, true);
+        } 
+        else if (runMode === 'test-tw') {
+            renderMultipleChoice(item, false);
+        }
+        else if (runMode === 'truefalse') {
+            renderTrueFalse(item);
+        }
+        else if (runMode === 'jumble') {
+            renderJumble(item);
+        }
+        else if (runMode === 'type') {
+            renderTypeTest(item);
+        }
+        else if (runMode === 'speak') {
+            renderSpeakTest(item);
+        }
+    }
+
+    function recordStudyDuration(word, isCorrect) {
+        if (wordStartTime > 0) {
+            let elapsedSec = Math.round((Date.now() - wordStartTime) / 1000);
+            if (elapsedSec > 0 && elapsedSec < 300) { 
+                logStudySession(word, elapsedSec, isCorrect);
+            }
+            wordStartTime = 0;
+        }
+    }
+
+    function renderFlashcard(item) {
+        isFlashcardFlipped = false;
+        speakSequence(item);
+        let html = `
+            <div class="question-title">Карточкани ағдариш учун устига босинг:</div>
+            <div class="flashcard" onclick="flipFlashcard()">
+                <div id="flashcard-content" class="word-card" style="margin:0;">${escapeHtml(item.word)}</div>
+            </div>
+            <div class="btn-audio-group" style="margin-bottom:15px;">
+                <button class="btn-audio" onclick="speakCurrentWordByLang('en')">🔊 ENG</button>
+                <button class="btn-audio" onclick="speakCurrentWordByLang('uz')">🔊 UZB</button>
+                ${item.ru ? `<button class="btn-audio" onclick="speakCurrentWordByLang('ru')">🔊 RUS</button>` : ''}
+                <button class="btn-audio btn-audio-seq" onclick="speakSequence(words[currentIndex])">🔊 Ҳаммаси</button>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-secondary" onclick="handleFlashcardResult(false)">Билмадим (-0.1)</button>
+                <button onclick="handleFlashcardResult(true)" style="background:#198754;">Билдим (+0.1)</button>
+            </div>
+        `;
+        document.getElementById('dynamic-area').innerHTML = html;
+    }
+
+    function flipFlashcard() {
+        let activePool = (currentMode === 'marathon') ? batchWords : words;
+        let item = activePool[currentIndex];
+        let cardContent = document.getElementById('flashcard-content');
+        if (!isFlashcardFlipped) {
+            cardContent.innerHTML = `${escapeHtml(item.uz || item.translation)}${item.ru ? `<br><span style="font-size:18px; color:#6c757d;">${escapeHtml(item.ru)}</span>` : ''}`;
+            cardContent.className = "translation-card";
+            isFlashcardFlipped = true;
+        } else {
+            cardContent.innerHTML = escapeHtml(item.word);
+            cardContent.className = "word-card";
+            isFlashcardFlipped = false;
+            speakText(item.word, 'en-US');
+        }
+    }
+
+    function handleFlashcardResult(isCorrect) {
+        let activePool = (currentMode === 'marathon') ? batchWords : words;
+        let item = activePool[currentIndex];
+        recordStudyDuration(item.word, isCorrect);
+        updateWordScore(item.word, 'flashcard', isCorrect);
+        processNext();
+    }
+
+    function renderTrueFalse(item) {
+        let isTrue = Math.random() < 0.5;
+        let displayedTranslation = item.translation;
+
+        if (!isTrue) {
+            let pool = words.filter(w => w.translation !== item.translation);
+            if (pool.length > 0) {
+                displayedTranslation = pool[Math.floor(Math.random() * pool.length)].translation;
+            }
+        }
+
+        speakText(item.word, 'en-US');
+        let html = `
+            <div class="question-title">Ушбу сўз ва таржима тўғрими?</div>
+            <div class="word-card">${escapeHtml(item.word)} = ${escapeHtml(displayedTranslation)}</div>
+            <div class="options-grid">
+                <button class="option-btn" style="background:#d1e7dd; color:#0f5132;" onclick="handleTFClick(${isTrue}, true)">✔ Ҳа (Тўғри)</button>
+                <button class="option-btn" style="background:#f8d7da; color:#842029;" onclick="handleTFClick(${isTrue}, false)">✖ Йўқ (Нотўғри)</button>
+            </div>
+        `;
+        document.getElementById('dynamic-area').innerHTML = html;
+    }
+
+    function handleTFClick(actualState, userAnswer) {
+        let activePool = (currentMode === 'marathon') ? batchWords : words;
+        let item = activePool[currentIndex];
+        let isCorrect = (actualState === userAnswer);
+        recordStudyDuration(item.word, isCorrect);
+        updateWordScore(item.word, 'truefalse', isCorrect);
+        
+        let mScore = getWordModeScore(item.word, 'truefalse');
+        document.getElementById('current-score-badge').innerText = `Жами: ${getWordData(item.word).totalScore.toFixed(1)} | Синов: ${mScore.toFixed(1)}`;
+        
+        let feedback = document.getElementById('feedback');
+        if (isCorrect) {
+            feedback.innerHTML = `<span style="color: #198754;">✔ Тўғри тахмин!</span>`;
+        } else {
+            feedback.innerHTML = `<span style="color: #dc3545;">✖ Хато!</span> Тўғри жавоб: ${escapeHtml(item.word)} = ${escapeHtml(item.translation)}`;
+        }
+        timer = setTimeout(processNext, 1200);
+    }
+
+    function renderSpeedRun() {
+        speedRunScore = 0;
+        speedRunTimeLeft = 60;
+        loadSpeedRunQuestion();
+    }
+
+    function loadSpeedRunQuestion() {
+        if (speedRunTimeLeft <= 0) return;
+        let activePool = (currentMode === 'marathon') ? batchWords : words;
+        let item = activePool[Math.floor(Math.random() * activePool.length)];
+        let options = generateOptions(item, true);
+
+        let html = `
+            <div class="question-title">⚡ SPEED RUN (60 сония): Балл: <span id="sr-score">${speedRunScore}</span> | Вақт: <span id="sr-time">${speedRunTimeLeft}</span>с</div>
+            <div class="word-card">${escapeHtml(item.word)}</div>
+            <div class="options-grid">
+        `;
+        options.forEach(opt => {
+            html += `<button class="option-btn" data-userans="${escapeHtml(opt.translation)}" data-correctans="${escapeHtml(item.translation)}" data-word="${escapeHtml(item.word)}" onclick="checkSpeedRunAnswer(this)">${escapeHtml(opt.translation)}</button>`;
+        });
+        html += `</div>`;
+        document.getElementById('dynamic-area').innerHTML = html;
+
+        if (!speedRunTimer) {
+            speedRunTimer = setInterval(() => {
+                speedRunTimeLeft--;
+                let tElem = document.getElementById('sr-time');
+                if (tElem) tElem.innerText = speedRunTimeLeft;
+                if (speedRunTimeLeft <= 0) {
+                    clearInterval(speedRunTimer);
+                    speedRunTimer = null;
+                    document.getElementById('feedback').innerHTML = `<span style="color:blue;">Вақт тугади! Тўплаган баллингиз: ${speedRunScore}</span>`;
+                    setTimeout(() => {
+                        if (currentMode === 'marathon') {
+                            currentIndex = batchWords.length; 
+                        }
+                        processNext();
+                    }, 2000);
+                }
+            }, 1000);
+        }
+    }
+
+    function checkSpeedRunAnswer(btn) {
+        if (speedRunTimeLeft <= 0) return;
+        let userAns = btn.getAttribute('data-userans');
+        let correctAns = btn.getAttribute('data-correctans');
+        let itemWord = btn.getAttribute('data-word');
+
+        let isCorrect = cleanStringForCheck(userAns) === cleanStringForCheck(correctAns);
+        recordStudyDuration(itemWord, isCorrect);
+        updateWordScore(itemWord, 'speedrun', isCorrect);
+
+        if (isCorrect) { speedRunScore++; }
+        let sElem = document.getElementById('sr-score');
+        if(sElem) sElem.innerText = speedRunScore;
+        loadSpeedRunQuestion();
+    }
+
+    function renderMatchingGame() {
+        let activePool = (currentMode === 'marathon') ? batchWords : words;
+        let batch = activePool; 
+        
+        if (currentMode !== 'marathon') {
+            if (matchingBatchIndex >= words.length) {
+                matchingBatchIndex = 0;
+                sortWordsByCurrentModeScore(words, 'matching');
+            }
+            batch = words.slice(matchingBatchIndex, matchingBatchIndex + 10);
+            document.getElementById('current-group-badge').innerText = "Мослаштириш";
+        }
+
+        matchingPairsLeft = batch.length;
+
+        let wordListShuffled = [...batch];
+        let translationListShuffled = [...batch];
+        shuffleArray(wordListShuffled);
+        shuffleArray(translationListShuffled);
+
+        let html = `
+            <div class="question-title">Чапдан сўзни, ўнгдан унинг таржимасини танлаб жуфтланг:</div>
+            <div class="matching-container">
+                <div class="matching-column" id="matching-words-col">
+        `;
+
+        wordListShuffled.forEach(item => {
+            html += `<button class="match-btn" data-type="word" data-id="${escapeHtml(item.word)}" onclick="handleMatchClick(this)">${escapeHtml(item.word)}</button>`;
+        });
+
+        html += `</div><div class="matching-column" id="matching-trans-col">`;
+
+        translationListShuffled.forEach(item => {
+            html += `<button class="match-btn" data-type="trans" data-word="${escapeHtml(item.word)}" onclick="handleMatchClick(this)">${escapeHtml(item.translation)}</button>`;
+        });
+
+        html += `</div></div>`;
+        document.getElementById('dynamic-area').innerHTML = html;
+        selectedWordBtn = null;
+        selectedTranslationBtn = null;
+    }
+
+    function handleMatchClick(btn) {
+        if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+
+        let type = btn.getAttribute('data-type');
+
+        if (type === 'word') {
+            if (selectedWordBtn) selectedWordBtn.classList.remove('selected');
+            selectedWordBtn = btn;
+            selectedWordBtn.classList.add('selected');
+            speakText(btn.getAttribute('data-id'), 'en-US');
+        } else {
+            if (selectedTranslationBtn) selectedTranslationBtn.classList.remove('selected');
+            selectedTranslationBtn = btn;
+            selectedTranslationBtn.classList.add('selected');
+        }
+
+        if (selectedWordBtn && selectedTranslationBtn) {
+            let wWord = selectedWordBtn.getAttribute('data-id');
+            let tWord = selectedTranslationBtn.getAttribute('data-word');
+
+            let wBtn = selectedWordBtn;
+            let tBtn = selectedTranslationBtn;
+
+            selectedWordBtn = null;
+            selectedTranslationBtn = null;
+
+            if (wWord === tWord) {
+                wBtn.classList.remove('selected');
+                tBtn.classList.remove('selected');
+                wBtn.classList.add('correct');
+                tBtn.classList.add('correct');
+                wBtn.disabled = true;
+                tBtn.disabled = true;
+
+                recordStudyDuration(wWord, true);
+                updateWordScore(wWord, 'matching', true);
+                matchingPairsLeft--;
+
+                if (matchingPairsLeft === 0) {
+                    document.getElementById('feedback').innerHTML = `<span style="color: #198754;">✔ Жуфтлаш муваффақиятли якунланди!</span>`;
+                    setTimeout(() => {
+                        if (currentMode === 'marathon') {
+                            currentIndex = batchWords.length; 
+                            processNext();
+                        } else {
+                            matchingBatchIndex += 10;
+                            renderMatchingGame();
+                        }
+                    }, 1500);
+                }
+            } else {
+                wBtn.classList.remove('selected');
+                tBtn.classList.remove('selected');
+                wBtn.classList.add('wrong');
+                tBtn.classList.add('wrong');
+                wBtn.disabled = true;
+                tBtn.disabled = true;
+
+                recordStudyDuration(wWord, false);
+                updateWordScore(wWord, 'matching', false);
+
+                setTimeout(() => {
+                    wBtn.classList.remove('wrong');
+                    tBtn.classList.remove('wrong');
+                    wBtn.disabled = false;
+                    tBtn.disabled = false;
+                }, 2000);
+            }
+        }
+    }
+
+    function generateOptions(correctItem, isWordToTranslation) {
+        let activePool = (currentMode === 'marathon') ? batchWords : words;
+        let options = [correctItem];
+        let usedTexts = new Set();
+        usedTexts.add(isWordToTranslation ? correctItem.translation : correctItem.word);
+
+        let pool = activePool.filter(w => w.word !== correctItem.word && w.translation !== correctItem.translation);
+        if (pool.length < 3) {
+            pool = allParsedWords.filter(w => w.word !== correctItem.word && w.translation !== correctItem.translation);
+        }
+        shuffleArray(pool);
+        
+        for (let i = 0; i < pool.length; i++) {
+            if (options.length >= 4) break;
+            let currentText = isWordToTranslation ? pool[i].translation : pool[i].word;
+            if (!usedTexts.has(currentText)) {
+                options.push(pool[i]);
+                usedTexts.add(currentText);
+            }
+        }
+        shuffleArray(options);
+        return options;
+    }
+
+    function renderMultipleChoice(item, isWordToTranslation) {
+        let options = generateOptions(item, isWordToTranslation);
+        let questionText = isWordToTranslation ? item.word : item.translation;
+        if (isWordToTranslation) speakText(item.word, 'en-US');
+
+        let modeKey = isWordToTranslation ? 'test-wt' : 'test-tw';
+
+        let html = `
+            <div class="question-title">${isWordToTranslation ? 'Таржимасини топинг:' : 'Инглизча сўзни топинг:'}</div>
+            <div class="word-card">${escapeHtml(questionText)}</div>
+            <div class="options-grid">
+        `;
+        
+        options.forEach(opt => {
+            let btnText = isWordToTranslation ? opt.translation : opt.word;
+            let matchAnswer = isWordToTranslation ? item.translation : item.word;
+            html += `<button class="option-btn" data-userans="${escapeHtml(btnText)}" data-matchans="${escapeHtml(matchAnswer)}" data-word="${escapeHtml(item.word)}" data-trans="${escapeHtml(item.translation)}" data-mode="${modeKey}" onclick="handleChoiceClick(this)">${escapeHtml(btnText)}</button>`;
+        });
+        html += `</div>`;
+        document.getElementById('dynamic-area').innerHTML = html;
+    }
+
+    function handleChoiceClick(btn) {
+        let userAns = btn.getAttribute('data-userans');
+        let matchAns = btn.getAttribute('data-matchans');
+        let itemWord = btn.getAttribute('data-word');
+        let itemTrans = btn.getAttribute('data-trans');
+        let modeKey = btn.getAttribute('data-mode');
+        checkAnswer(userAns, matchAns, matchAns, itemWord, itemTrans, modeKey);
+    }
+
+    function getPartsForWord(word) {
+        if (word.length <= 15) {
+            return word.split('');
+        } else {
+            let result = [];
+            let tokens = word.split(/(\s+)/);
+            tokens.forEach(token => {
+                if (token.trim() === '') {
+                    token.split('').forEach(spaceChar => result.push(spaceChar));
+                } else {
+                    const matches = token.match(/[^aeiouy]*[aeiouy]+(?:[^aeiouy]*$|[^aeiouy](?=[^aeiouy]))?/gi);
+                    if (matches && matches.join('') === token) {
+                        result.push(...matches);
+                    } else {
+                        result.push(...(token.match(/.{1,4}/g) || [token])); 
+                    }
+                }
+            });
+            return result;
+        }
+    }
+
+    function renderJumble(item) {
+        let parts = getPartsForWord(item.word);
+        shuffleArray(parts);
+        
+        currentJumbleParts = parts;
+        currentJumbleTarget = item.word;
+        currentJumbleTranslation = item.translation;
+
+        let titleText = item.word.length > 15 ? "Бўғинлардан сўз ясанг (Writing):" : "Сўзни ҳарфлардан ясанг (Writing):";
+
+        let html = `
+            <div class="question-title">${titleText}</div>
+            <div class="translation-card">${escapeHtml(item.uz || item.translation)}</div>
+            ${item.ru ? `<div class="translation-sub">${escapeHtml(item.ru)}</div>` : ''}
+            <div class="answer-box" id="jumble-answer-box"></div>
+            <div class="jumble-area" id="jumble-letters-area">
+        `;
+        
+        parts.forEach((part, index) => {
+            let displayPart = part === ' ' ? '␣' : escapeHtml(part);
+            html += `<button class="letter-btn" id="jumble-btn-${index}" onclick="handleJumbleClick(${index})">${displayPart}</button>`;
+        });
+        
+        html += `</div><button class="btn-secondary" onclick="clearJumble()" style="margin-top:15px; width:auto;">Барчасини тозалаш</button>`;
+        document.getElementById('dynamic-area').innerHTML = html;
+    }
+
+    function handleJumbleClick(index) {
+        let btn = document.getElementById(`jumble-btn-${index}`);
+        let topArea = document.getElementById('jumble-answer-box');
+        let bottomArea = document.getElementById('jumble-letters-area');
+
+        if (btn.parentElement.id === 'jumble-letters-area') {
+            topArea.appendChild(btn); 
+        } else {
+            bottomArea.appendChild(btn); 
+        }
+        checkJumbleState();
+    }
+
+    function checkJumbleState() {
+        let topArea = document.getElementById('jumble-answer-box');
+        let currentStr = "";
+        Array.from(topArea.children).forEach(btn => {
+            let idx = parseInt(btn.id.replace('jumble-btn-', ''));
+            currentStr += currentJumbleParts[idx];
+        });
+
+        if (currentStr.length === currentJumbleTarget.length) {
+            checkAnswer(currentStr, currentJumbleTarget, currentJumbleTarget, currentJumbleTarget, currentJumbleTranslation, 'jumble');
+        }
+    }
+
+    function clearJumble() {
+        let topArea = document.getElementById('jumble-answer-box');
+        let bottomArea = document.getElementById('jumble-letters-area');
+        Array.from(topArea.children).forEach(btn => { bottomArea.appendChild(btn); });
+    }
+
+    function renderTypeTest(item) {
+        let html = `
+            <div class="question-title">Таржимасига қараб инглизчасини ёзинг (Writing):</div>
+            <div class="translation-card">${escapeHtml(item.uz || item.translation)}</div>
+            ${item.ru ? `<div class="translation-sub">${escapeHtml(item.ru)}</div>` : ''}
+            <input type="text" id="type-input" placeholder="Шу ерга ёзинг..." autocomplete="off">
+            <button onclick="handleTypeSubmit()">Текшириш</button>
+        `;
+        document.getElementById('dynamic-area').innerHTML = html;
+        
+        setTimeout(() => {
+            const input = document.getElementById('type-input');
+            if(input) {
+                input.focus();
+                input.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') { handleTypeSubmit(); }
+                });
+            }
+        }, 100);
+    }
+
+    function handleTypeSubmit() {
+        let activePool = (currentMode === 'marathon') ? batchWords : words;
+        let item = activePool[currentIndex];
+        const userAnswer = document.getElementById('type-input').value;
+        checkAnswer(userAnswer, item.word, item.word, item.word, item.translation, 'type');
+    }
+
+    function renderSpeakTest(item) {
+        let html = `
+            <div class="question-title">Таржимасига қараб инглизчасини гапиринг (Speaking):</div>
+            <div class="translation-card">${escapeHtml(item.uz || item.translation)}</div>
+            ${item.ru ? `<div class="translation-sub">${escapeHtml(item.ru)}</div>` : ''}
+            <button id="mic-btn" class="btn-mic" onclick="startMicTest()">🎤 Микрофонга гапириш</button>
+        `;
+        document.getElementById('dynamic-area').innerHTML = html;
+    }
+
+    function startMicTest() {
+        let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Кечирасиз, браузерингиз овозли қидирувни қўллаб-қувватламайди.");
+            return;
+        }
+
+        if (activeRecognition) { 
+            try { activeRecognition.stop(); } catch(e){}
+        }
+
+        let activePool = (currentMode === 'marathon') ? batchWords : words;
+        let item = activePool[currentIndex];
+
+        activeRecognition = new SpeechRecognition();
+        activeRecognition.lang = 'en-US';
+        activeRecognition.continuous = false;
+        activeRecognition.interimResults = false;
+
+        const micBtn = document.getElementById('mic-btn');
+        micBtn.innerText = '🎙 Эшитилмоқда...';
+        micBtn.classList.add('listening');
+
+        activeRecognition.start();
+
+        activeRecognition.onresult = function(event) {
+            const spokenWord = event.results[0][0].transcript;
+            micBtn.innerText = '🎤 Микрофонга гапириш';
+            micBtn.classList.remove('listening');
+            checkAnswer(spokenWord, item.word, item.word, item.word, item.translation, 'speak');
+        };
+
+        activeRecognition.onerror = function() {
+            micBtn.innerText = '🎤 Қайта уриниш';
+            micBtn.classList.remove('listening');
+        };
+
+        activeRecognition.onend = function() {
+            micBtn.innerText = '🎤 Микрофонга гапириш';
+            micBtn.classList.remove('listening');
+        };
+    }
+
+    function checkAnswer(rawUserAnswer, rawMatchAnswer, displayAnswer, itemWord, itemTranslation, testModeKey) {
+        const dynamicBtns = document.querySelectorAll('#dynamic-area button, #dynamic-area input');
+        dynamicBtns.forEach(b => b.disabled = true);
+
+        const userAnswer = cleanStringForCheck(rawUserAnswer);
+        const matchAnswer = cleanStringForCheck(rawMatchAnswer);
+        const feedback = document.getElementById('feedback');
+        
+        let isCorrect = (userAnswer === matchAnswer);
+        recordStudyDuration(itemWord, isCorrect);
+        updateWordScore(itemWord, testModeKey || currentMode, isCorrect);
+        
+        let mScore = getWordModeScore(itemWord, testModeKey || currentMode);
+        document.getElementById('current-score-badge').innerText = `Жами: ${getWordData(itemWord).totalScore.toFixed(1)} | Синов: ${mScore.toFixed(1)}`;
+
+        if (isCorrect) {
+            feedback.innerHTML = `<span style="color: #198754;">✔ Жуда соз! (+0.1)</span>`;
+            timer = setTimeout(processNext, 1200); 
+        } else {
+            speakText(itemWord, 'en-US');
+            let youSaid = rawUserAnswer ? `<br><span style="font-size:16px; color:#6c757d;">Сизнинг жавобингиз: ${escapeHtml(rawUserAnswer)}</span>` : '';
+            feedback.innerHTML = `<span style="color: #dc3545;">✖ Хато! (-0.1)</span><br><span style="color:#212529; font-size:18px;">Тўғри жавоб: <b>${escapeHtml(displayAnswer)}</b></span>${youSaid}`;
+            
+            let delay = calculateDelay(itemWord, itemTranslation);
+            showTimer(delay);
+            timer = setTimeout(processNext, delay);
+        }
+    }
+
+    function showTimer(duration) {
+        const wrapper = document.getElementById('timer-wrapper');
+        const bar = document.getElementById('timer-bar');
+        wrapper.style.display = 'block';
+        bar.style.transition = 'none';
+        bar.style.width = '100%';
+        setTimeout(() => {
+            bar.style.transition = `width ${duration}ms linear`;
+            bar.style.width = '0%';
+        }, 50);
+    }
+
+    function processNext() {
+        currentIndex++;
+        showNextWord();
+    }
+
+    function stopApp() {
+        if (timer) clearTimeout(timer);
+        if (speedRunTimer) { clearInterval(speedRunTimer); speedRunTimer = null; }
+        if (activeRecognition) {
+            try { activeRecognition.stop(); } catch(e){}
+            activeRecognition = null;
+        }
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        try { noSleep.disable(); } catch(e){}
+        
+        document.getElementById('app-container').style.display = 'none';
+        document.getElementById('setup-container').style.display = 'block';
+    }
+
+    function openStats() {
+        document.getElementById('setup-container').style.display = 'none';
+        document.getElementById('stats-container').style.display = 'block';
+        renderStats('today');
+    }
+
+    function closeStats() {
+        document.getElementById('stats-container').style.display = 'none';
+        document.getElementById('setup-container').style.display = 'block';
+    }
+
+    function switchStatsPeriod(period, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentSelectedPeriod = period;
+        renderStats(period);
+    }
+
+    function renderStats(period) {
+        let logs = JSON.parse(localStorage.getItem('vocab_logs') || '[]');
+        let now = Date.now();
+        let timeThreshold = 0;
+
+        if (period === 'today') {
+            let startOfToday = new Date();
+            startOfToday.setHours(0,0,0,0);
+            timeThreshold = startOfToday.getTime();
+        } else if (period === 'week') {
+            timeThreshold = now - (7 * 24 * 3600 * 1000);
+        } else if (period === 'month') {
+            timeThreshold = now - (30 * 24 * 3600 * 1000);
+        } else if (period === 'year') {
+            timeThreshold = now - (365 * 24 * 3600 * 1000);
+        }
+
+        let filteredLogs = logs.filter(l => l.timestamp >= timeThreshold);
+
+        let totalSeconds = filteredLogs.reduce((sum, l) => sum + (l.duration || 0), 0);
+        let minutes = Math.floor(totalSeconds / 60);
+        let hours = (minutes / 60).toFixed(1);
+        
+        let timeDisplay = minutes < 60 ? `${minutes} дақ` : `${hours} соат`;
+        document.getElementById('stat-time').innerText = timeDisplay;
+
+        let uniqueWords = new Set(filteredLogs.map(l => l.word));
+        document.getElementById('stat-words-count').innerText = `${uniqueWords.size} та`;
+
+        let listContainer = document.getElementById('stats-words-list');
+        listContainer.innerHTML = '';
+
+        if (uniqueWords.size === 0) {
+            listContainer.innerHTML = '<div style="text-align:center; color:#6c757d; padding:20px;">Ушбу муддатда ҳали шуғулланилмаган.</div>';
+            return;
+        }
+
+        uniqueWords.forEach(wordStr => {
+            let wData = getWordData(wordStr);
+            let itemObj = allParsedWords.find(w => w.word === wordStr);
+            let translation = itemObj ? itemObj.translation : '';
+
+            let itemDiv = document.createElement('div');
+            itemDiv.className = 'word-stat-item';
+            itemDiv.innerHTML = `
+                <div>
+                    <b>${escapeHtml(wordStr)}</b> 
+                    <span style="color:#6c757d; font-size:12px;">(${escapeHtml(translation)})</span>
+                </div>
+                <div>
+                    <span style="background:#e9ecef; padding:2px 6px; border-radius:4px; font-weight:bold; color:#0d6efd;">
+                        Балл: ${wData.totalScore.toFixed(1)}
+                    </span>
+                </div>
+            `;
+            listContainer.appendChild(itemDiv);
+        });
+    }
+</script>
+
+</body>
+</html>
