@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Луғат ёдлаш ва тест дастури</title>
+    <title>Мукаммал Луғат ва Тест Дастури</title>
     <style>
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -156,7 +156,7 @@
 <body>
 
 <div id="setup-container" class="container">
-    <h2 data-i18n="appTitle">Луғат ёдлаш ва тест дастури</h2>
+    <h2 data-i18n="appTitle">Мукаммал Луғат ва Тест Дастури</h2>
     
     <!-- Тилни танлаш -->
     <div class="lang-toggle" id="language-selector">
@@ -190,7 +190,8 @@
             <b data-i18n="formatLabel">Формат:</b> <code>сўз=ўзбекча=русча=гуруҳ=пастки_гуруҳ</code>
         </div>
 
-        <textarea id="word-list">arise (arose)=paydo bo‘lmoq (paydo bo‘ldi)=возникать, появляться=Нотўғри феъллар=V2
+        <textarea id="word-list">
+		arise (arose)=paydo bo‘lmoq (paydo bo‘ldi)=возникать, появляться=Нотўғри феъллар=V2
 awake (awoke)=uyg‘onmoq (uyg‘ondi)=просыпаться=Нотўғри феъллар=V2
 be (was/were)=bo‘lmoq (edi/edilar)=быть=Нотўғри феъллар=V2
 bear (bore)=ko‘tarmoq/chidamoq (ko‘tardi/chidadi)=нести, рожать=Нотўғри феъллар=V2
@@ -2153,7 +2154,7 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
     // --- ИККИ ТИЛЛИЛИК ЛУҒАТИ (i18n) ---
     const i18n = {
         uz: {
-            appTitle: "Луғат ёдлаш ва тест дастури",
+            appTitle: "Мукаммал Луғат ва Тест Дастури",
             modeVocab: "📚 Луғат ёдлаш",
             modeTest: "📝 Тест синови",
             vocabUploadFile: "Луғат файлини юклаш (.txt):",
@@ -2235,7 +2236,7 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
             scoreMain: "Балл:"
         },
         ru: {
-            appTitle: "Программа для запоминания словарного запаса и тестирования",
+            appTitle: "Идеальный словарь и программа тестирования",
             modeVocab: "📚 Изучение слов",
             modeTest: "📝 Тестирование",
             vocabUploadFile: "Загрузите файл словаря (.txt):",
@@ -2330,7 +2331,6 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
         document.getElementById('lbl-ru').classList.remove('active');
         document.getElementById(`lbl-${currentLang}`).classList.add('active');
         
-        // Барча таржима қилинадиган элементларни янгилаш
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (i18n[currentLang][key]) {
@@ -2343,7 +2343,6 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
         updateTestGroups();
     }
 
-    // Луғатдаги сўзнинг танланган тилдаги таржимасини олиш
     function getTranslation(item) {
         if (!item) return '';
         if (currentLang === 'uz') return item.uz || item.ru || item.word;
@@ -2351,7 +2350,6 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
         return item.word;
     }
 
-    // Ҳолат ўзгарувчилари
     let mainAppMode = 'vocab'; 
     let allParsedWords = [];
     let words = [];
@@ -2386,7 +2384,6 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
     let noSleep = new NoSleep();
     let wordStartTime = 0;
 
-    // Ходисаларни боғлаш
     document.getElementById('word-list').addEventListener('input', updateGroups);
     document.getElementById('group-select').addEventListener('change', updateSubgroups);
     document.getElementById('file-input').addEventListener('change', function(e) {
@@ -2416,7 +2413,7 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
     window.onload = () => {
         updateGroups();
         updateTestGroups();
-        changeLang(); // Бошланғич тилни ўрнатиш
+        changeLang();
     };
 
     window.speechSynthesis.onvoiceschanged = function() {
@@ -2442,6 +2439,8 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
         if (!str) return '';
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
+
+    function cleanStringForCheck(str) { return str ? str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?'"]/g,"").replace(/\s{2,}/g," ").trim() : ""; }
 
     /* --- ЛУҒАТ ПАРСИНГИ ВА СТАТИСТИКАСИ --- */
     function getWordData(word) {
@@ -2533,7 +2532,6 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
         allParsedTests = [];
 
         lines.forEach(line => {
-            // МУҲИМ ЕЧИМ: => белгисини бошқа нарсага вақтинча алмаштирамиз
             let safeLine = line.replace(/=>/g, '|||');
             const parts = safeLine.split('=');
             if (parts.length >= 3) {
@@ -2543,7 +2541,6 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
                 let group = (parts.length > 3 && parts[3]) ? parts[3].replace(/^"|"$/g, '').trim() : t('allGroups');
                 let subgroup = (parts.length > 4 && parts[4]) ? parts[4].replace(/^"|"$/g, '').trim() : 'Асосий';
 
-                // Вақтинчалик ||| орқали жавоб вариантларини ажратамиз
                 let options = optionsStr.split('|||').map(o => o.trim()).filter(Boolean);
                 if(options.length > 0) {
                     let correctAnswer = options[0];
@@ -2576,7 +2573,6 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
         });
     }
 
-    /* --- УМУМИЙ ФУНКЦИЯЛАР --- */
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -2703,7 +2699,7 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
     }
 
     /* =========================================
-       1. МАХСУС ТЕСТ СИНОВИ БЎЛИМИ
+       1. ТЕСТ СИНОВИ БЎЛИМИ (ЯНГИЛАНГАН ВА ТЎҒРИЛАНГАН)
        ========================================= */
     function showNextTest() {
         if (timer) clearTimeout(timer);
@@ -2715,11 +2711,11 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
 
         if (testCurrentIndex >= activeTests.length) {
             scoreBadge.innerText = `${t('testResult')} ${testCorrectCount} /${testTotalCount}`;
-            groupBadge.innerText = t('marathonEnded'); // "Тест якунланди"
+            groupBadge.innerText = t('marathonEnded');
             document.getElementById('dynamic-area').innerHTML = `
                 <div style="padding: 40px 20px;">
                     <h3>${t('testEndTitle')}</h3>
-                    <p style="font-size: 20px;">${t('testCorrectAnswers')} <b>${testCorrectCount}</b>${t('testOutOf')}${testTotalCount}${t('testFrom')}</p>
+                    <p style="font-size: 20px;">${t('testCorrectAnswers')} <b>${testCorrectCount}</b> ${t('testOutOf')}${testTotalCount}${t('testFrom')}</p>
                 </div>
             `;
             return;
@@ -2738,21 +2734,25 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
             <div class="options-grid" id="test-options-area">
         `;
         
+        // ВАРИАНТЛАРНИ data-opt АТРИБУТИДА САҚЛАШ (СИНТАКСИС ХАТОЛИГИНИ ОЛДИНИ ОЛАДИ)
         options.forEach(opt => {
-            html += `<button class="option-btn" onclick="checkGrammarTestAnswer(this, '${escapeHtml(opt)}', '${escapeHtml(item.correctAnswer)}')">${escapeHtml(opt)}</button>`;
+            html += `<button class="option-btn" data-opt="${escapeHtml(opt)}" onclick="checkGrammarTestAnswer(this)">${escapeHtml(opt)}</button>`;
         });
         html += `</div>`;
         document.getElementById('dynamic-area').innerHTML = html;
     }
 
-    function checkGrammarTestAnswer(btn, selectedAns, correctAns) {
+    function checkGrammarTestAnswer(btn) {
         const dynamicBtns = document.querySelectorAll('#test-options-area button');
         dynamicBtns.forEach(b => b.disabled = true);
         
-        testTotalCount++;
-        let isCorrect = (selectedAns === correctAns);
-        const feedback = document.getElementById('feedback');
+        const selectedAns = btn.getAttribute('data-opt');
         let item = activeTests[testCurrentIndex];
+        const correctAns = item.correctAnswer;
+
+        testTotalCount++;
+        let isCorrect = (cleanStringForCheck(selectedAns) === cleanStringForCheck(correctAns));
+        const feedback = document.getElementById('feedback');
 
         if (isCorrect) {
             testCorrectCount++;
@@ -2763,13 +2763,14 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
         } else {
             btn.style.background = '#f8d7da'; btn.style.borderColor = '#dc3545'; btn.style.color = '#842029';
             dynamicBtns.forEach(b => {
-                if (b.innerText === correctAns) { b.style.background = '#d1e7dd'; b.style.borderColor = '#198754'; b.style.color = '#0f5132'; }
+                if (cleanStringForCheck(b.getAttribute('data-opt')) === cleanStringForCheck(correctAns)) { 
+                    b.style.background = '#d1e7dd'; b.style.borderColor = '#198754'; b.style.color = '#0f5132'; 
+                }
             });
             feedback.innerHTML = `<span style="color: #dc3545;">${t('testWrong')} <b>${escapeHtml(correctAns)}</b></span><div style="margin-top:10px; color:#0d6efd; font-size:18px; font-weight:normal;">📋 ${escapeHtml(item.fullSentence)}</div>`;
             showTimer(4500); timer = setTimeout(processNext, 4500);
         }
     }
-
 
     /* =========================================
        2. ЛУҒАТ ЁДЛАШ БЎЛИМИ
@@ -2820,7 +2821,7 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
 
         if (currentMode !== 'marathon') { document.getElementById('current-group-badge').innerText = item.group + (item.subgroup ? ` > ${item.subgroup}` : ''); }
         let mScore = getWordModeScore(item.word, runMode);
-        document.getElementById('current-score-badge').innerText = `${t('scoreTotal')}:${item.score.toFixed(1)} | ${t('scoreTest')}:${mScore.toFixed(1)}`; 
+        document.getElementById('current-score-badge').innerText = `${t('scoreTotal')}: ${item.score.toFixed(1)} | ${t('scoreTest')}: ${mScore.toFixed(1)}`; 
 
         if (runMode === 'learn') {
             let langBtnName = currentLang === 'ru' ? 'RUS' : 'UZ';
@@ -2854,7 +2855,6 @@ By 2028, I will have been ___ at this company for a decade.=working=>worked=>wor
         if (maxLength <= 30) return 10000;
         return 15000;
     }
-    function cleanStringForCheck(str) { return str ? str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?'"]/g,"").replace(/\s{2,}/g," ").trim() : ""; }
     function recordStudyDuration(word, isCorrect) {
         if (wordStartTime > 0) {
             let elapsedSec = Math.round((Date.now() - wordStartTime) / 1000);
